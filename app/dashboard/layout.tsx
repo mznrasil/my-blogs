@@ -72,7 +72,7 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
                     <p>
                       {user?.given_name} {user?.family_name}
                     </p>
-                    <p className="text-muted-foreground">{user.email}</p>
+                    <p className="text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

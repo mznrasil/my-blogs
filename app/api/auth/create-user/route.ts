@@ -16,7 +16,7 @@ export async function GET() {
       id: user.id,
       first_name: user.given_name ?? "",
       last_name: user.family_name ?? "",
-      email: user.email ?? "",
+      email: user?.email ?? "",
       profile_image:
         user.picture ?? `https://avatar.vercel.sh/${user.given_name}`,
     });
