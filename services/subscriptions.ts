@@ -1,24 +1,12 @@
 import { API, handleAxiosError } from "@/lib/axios/client";
-import {
-  CreateSubscriptionType,
-  SubscriptionType,
-  UpdateSubscriptionType,
-} from "./types";
 import { Endpoint } from "./endpoint";
 import { APISuccess } from "@/lib/axios/types";
+import { SubscriptionType } from "./types";
 
-export const createSubscription = async (data: CreateSubscriptionType) => {
+export const checkSubscriptionStatus = async () => {
   try {
-    await API.post<APISuccess>(Endpoint.Subscription.Create, data);
-  } catch (error) {
-    handleAxiosError(error);
-  }
-};
-
-export const getSubscriptionByID = async (id: string) => {
-  try {
-    const response = await API.get<APISuccess<SubscriptionType>>(
-      Endpoint.Subscription.GetByID.replace("{id}", id),
+    const response = await API.get<APISuccess<boolean>>(
+      Endpoint.Subscription.CheckStatus,
     );
     return response.data.data;
   } catch (error) {
@@ -26,17 +14,13 @@ export const getSubscriptionByID = async (id: string) => {
   }
 };
 
-export const updateSubscription = async (data: {
-  id: string;
-  data: UpdateSubscriptionType;
-}) => {
-  const { id, ...rest } = data;
+export const getSubscription = async () => {
   try {
-    await API.patch<APISuccess>(
-      Endpoint.Subscription.Update.replace("{id}", id),
-      rest,
+    const response = await API.get<APISuccess<SubscriptionType>>(
+      Endpoint.Subscription.Get,
     );
+    return response.data.data;
   } catch (error) {
-    handleAxiosError(error);
+    console.error(error);
   }
 };

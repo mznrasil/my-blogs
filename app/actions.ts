@@ -2,12 +2,22 @@
 import { redirect } from "next/navigation";
 import { parseWithZod } from "@conform-to/zod";
 import { postSchema, siteSchema } from "@/lib/zod-schemas";
-import { createSite, deleteSite, updateSiteImage } from "@/services/sites";
-import { createPost, deletePost, updatePost } from "@/services/posts";
+import {
+  createSite,
+  deleteSite,
+  getAllSites,
+  updateSiteImage,
+} from "@/services/sites";
+import {
+  createPost,
+  deletePost,
+  getAllPosts,
+  updatePost,
+} from "@/services/posts";
 import { handleAxiosError } from "@/lib/axios/client";
-import { getUserByID, updateCustomerID } from "@/services/user";
+import { initiatePayment } from "@/services/payments";
+import { checkSubscriptionStatus } from "@/services/subscriptions";
 import { requireUser } from "./utils/requireUser";
-import { stripe } from "./utils/stripe";
 
 export async function CreateSiteAction(_: any, formData: FormData) {
   const submittedData = parseWithZod(formData, {
@@ -16,6 +26,15 @@ export async function CreateSiteAction(_: any, formData: FormData) {
 
   if (submittedData.status !== "success") {
     return submittedData.reply();
+  }
+
+  const [subscribed, sites = []] = await Promise.all([
+    checkSubscriptionStatus(),
+    getAllSites(),
+  ]);
+
+  if (!subscribed && sites.length === 1) {
+    return redirect("/dashboard/pricing");
   }
 
   try {
@@ -41,14 +60,27 @@ export async function CreatePostAction(_: any, formData: FormData) {
     return submittedData.reply();
   }
 
-  await createPost({
-    title: submittedData.value.title,
-    slug: submittedData.value.slug,
-    small_description: submittedData.value.small_description,
-    image: submittedData.value.image,
-    article_content: JSON.parse(submittedData.value.article_content),
-    site_id: formData.get("siteID") as string,
-  });
+  const [subscribed, posts = []] = await Promise.all([
+    checkSubscriptionStatus(),
+    getAllPosts(),
+  ]);
+
+  if (!subscribed && posts.length === 20) {
+    return redirect("/dashboard/pricing");
+  }
+
+  try {
+    await createPost({
+      title: submittedData.value.title,
+      slug: submittedData.value.slug,
+      small_description: submittedData.value.small_description,
+      image: submittedData.value.image,
+      article_content: JSON.parse(submittedData.value.article_content),
+      site_id: formData.get("siteID") as string,
+    });
+  } catch (error) {
+    console.error(error);
+  }
 
   return redirect(`/dashboard/sites/${formData.get("siteID") as string}`);
 }
@@ -100,38 +132,19 @@ export async function DeleteSiteAction(formData: FormData) {
   return redirect(`/dashboard/sites`);
 }
 
-export async function CreateSubscription() {
-  const user = await requireUser();
-  const stripeUser = await getUserByID(user.id);
+export async function CreateSubscription(formData: FormData) {
+  await requireUser();
 
-  if (!stripeUser) redirect("/api/auth/login");
-
-  let stripeUserId;
-  if (!stripeUser?.customer_id) {
-    const stripeCustomer = await stripe.customers.create({
-      email: stripeUser.email,
-      name: stripeUser.first_name,
+  let payment_url = "";
+  try {
+    const data = await initiatePayment({
+      plan_id: Number(formData.get("plan_id")),
     });
 
-    stripeUserId = await updateCustomerID({
-      id: user.id,
-      customer_id: stripeCustomer.id,
-    });
+    if (!data) return;
+    payment_url = data.payment_url;
+  } catch (error) {
+    handleAxiosError(error);
   }
-
-  const session = await stripe.checkout.sessions.create({
-    customer: stripeUserId?.customer_id as string,
-    mode: "subscription",
-    billing_address_collection: "auto",
-    payment_method_types: ["card"],
-    customer_update: {
-      address: "auto",
-      name: "auto",
-    },
-    success_url: "http://localhost:3000/dashboard/payment/success",
-    cancel_url: "http://localhost:3000/dashboard/payment/cancelled",
-    line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-  });
-
-  return redirect(session.url as string);
+  redirect(payment_url);
 }

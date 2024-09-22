@@ -5,14 +5,22 @@ import { ThemeToggle } from "../components/dashboard/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { CircleUser } from "lucide-react";
+import { CircleUser, LogOut } from "lucide-react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import Image from "next/image";
 
-export default function DashboardLayout({ children }: PropsWithChildren) {
+export default async function DashboardLayout({ children }: PropsWithChildren) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
   return (
     <section className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden md:block border-r bg-muted/40">
@@ -45,13 +53,37 @@ export default function DashboardLayout({ children }: PropsWithChildren) {
                   size="icon"
                   className="rounded-full"
                 >
-                  <CircleUser className="size-5" />
+                  {user?.picture ? (
+                    <Image
+                      src={user.picture}
+                      alt={"User"}
+                      width={20}
+                      height={20}
+                      className="size-8 rounded-full"
+                    />
+                  ) : (
+                    <CircleUser className="size-5" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <LogoutLink>Logout</LogoutLink>
-                </DropdownMenuItem>
+                <DropdownMenuLabel asChild>
+                  <div className="flex flex-col">
+                    <p>
+                      {user?.given_name} {user?.family_name}
+                    </p>
+                    <p className="text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <LogoutLink>
+                      <LogOut className="size-4 mr-3" />
+                      Logout
+                    </LogoutLink>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

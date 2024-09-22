@@ -48,7 +48,6 @@ const getCustomerById = async (customerId: string) => {
     const response = await PublicAPI.get<APISuccess<UserType>>(
       Endpoint.User.GetCustomerByID.replace("{id}", customerId),
     );
-    console.log(response, "response");
     return response.data.data;
   } catch (error) {
     handleAxiosError(error);

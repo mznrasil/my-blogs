@@ -24,7 +24,6 @@ const getAllPostsBySite = async (siteID: string) => {
     const response = await API.get<APISuccess<PostSiteType>>(
       Endpoint.Post.GetAllBySiteID.replace("{siteID}", siteID),
     );
-    console.log(response);
     return response.data.data;
   } catch (error) {
     handleAxiosError(error);
@@ -44,7 +43,6 @@ const createPost = async (data: CreatePostType) => {
 };
 
 const getPostById = async (siteID: string, postID: string) => {
-  console.log(siteID);
   try {
     const response = await API.get<APISuccess<PostType>>(
       Endpoint.Post.GetByID.replace("{siteID}", siteID).replace(

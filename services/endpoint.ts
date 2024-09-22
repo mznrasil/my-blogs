@@ -1,8 +1,11 @@
 export const Endpoint = {
+  Payment: {
+    Initiate: "/payment/initiate",
+    UpdateStatus: "/payment",
+  },
   Subscription: {
-    Create: "/subscriptions",
-    GetByID: "/subscriptions/{id}",
-    Update: "/subscriptions/{id}",
+    CheckStatus: "/subscriptions/status",
+    Get: "/subscriptions",
   },
   User: {
     Create: "/users",

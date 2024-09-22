@@ -1,4 +1,4 @@
-type APISuccess<T extends object | null = null> = {
+type APISuccess<T extends object | boolean | null = null> = {
   data: T;
   code: number;
   message: string;

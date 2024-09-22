@@ -1,31 +1,36 @@
 import { JSONContent } from "novel";
 
-type SubscriptionType = {
-  stripe_subscription_id: string;
-  interval: string;
+type UpdatePaymentStatusPayloadType = {
+  pidx: string;
+  transaction_id: string;
+  amount: number;
+  total_amount: number;
+  mobile: string;
   status: string;
-  plan_id: string;
-  current_period_start: number;
-  current_period_end: number;
-  created_at: Date;
-  updated_at: Date;
-  user_id: string;
+  plan_id: number;
 };
 
-type CreateSubscriptionType = Pick<
-  SubscriptionType,
-  | "stripe_subscription_id"
-  | "interval"
-  | "status"
-  | "plan_id"
-  | "current_period_start"
-  | "current_period_end"
->;
+type InitiatePaymentResponse = {
+  pidx: string;
+  payment_url: string;
+  expires_at: string;
+  expires_in: number;
+};
 
-type UpdateSubscriptionType = Pick<
-  SubscriptionType,
-  "status" | "plan_id" | "current_period_start" | "current_period_end"
->;
+type InitiatePaymentPayloadType = {
+  plan_id: number;
+};
+
+type SubscriptionType = {
+  id: string;
+  start_date: Date;
+  end_date: Date;
+  user_id: string;
+  plan_id: number;
+  payment_id: string;
+  created_at: Date;
+  updated_at: Date;
+};
 
 type UserType = {
   id: string;
@@ -110,4 +115,7 @@ export type {
   SubscriptionType,
   CreateSubscriptionType,
   UpdateSubscriptionType,
+  InitiatePaymentPayloadType,
+  InitiatePaymentResponse,
+  UpdatePaymentStatusPayloadType,
 };
