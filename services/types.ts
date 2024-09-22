@@ -113,8 +113,6 @@ export type {
   PostSiteType,
   SitePostsType,
   SubscriptionType,
-  CreateSubscriptionType,
-  UpdateSubscriptionType,
   InitiatePaymentPayloadType,
   InitiatePaymentResponse,
   UpdatePaymentStatusPayloadType,
