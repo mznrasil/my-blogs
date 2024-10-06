@@ -33,7 +33,7 @@ export async function CreateSiteAction(_: any, formData: FormData) {
     getAllSites(),
   ]);
 
-  if (!subscribed && sites.length === 1) {
+  if (!subscribed && sites?.length === 1) {
     return redirect("/dashboard/pricing");
   }
 
@@ -65,7 +65,7 @@ export async function CreatePostAction(_: any, formData: FormData) {
     getAllPosts(),
   ]);
 
-  if (!subscribed && posts.length === 20) {
+  if (!subscribed && posts?.length === 20) {
     return redirect("/dashboard/pricing");
   }
 

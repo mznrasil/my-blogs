@@ -15,6 +15,7 @@ import { EmptyState } from "@/app/components/dashboard/EmptyState";
 
 export default async function SitesRoute() {
   const sites = await getAllSites();
+  console.log({ sites });
 
   return (
     <>
