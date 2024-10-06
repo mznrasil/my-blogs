@@ -5,7 +5,10 @@
     "buildCommand": "npm run build",
     "nixpacksPlan": {
       "phases": {
-        "install": "npm install --legacy-peer-deps"
+        "install": {
+          "dependsOn": ["setup"],
+          "cmds": ["npm install --legacy-peer-deps"]
+        }
       }
     }
   },
